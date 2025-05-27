@@ -1,16 +1,26 @@
 from PyQt6.QtWidgets import QApplication, QWidget, QPushButton
+from PyQt6.QtCore import pyqtSignal, QObject, Qt
+import pygame
+import threading
+import os
 import config
 
 
+# Class that sends that allows the signla to send the button that was pressed
+class ControllerSignals(QObject):
+    button_pressed = pyqtSignal(str, bool)
+
+
 """Global State"""
-buttons = []
+buttons = dict()
 current_width = 800
 current_height = 450
 current_radius = int((min(current_width, current_height) * (20 / 100)) / 2)
+signals = ControllerSignals()
 
 """
 The Configuration for each button, NOT where
-each of the buttons are stored (buttons = [])
+each of the buttons are stored (buttons dictionary)
 """
 BUTTONS = [
     # Movement Buttons
@@ -30,37 +40,36 @@ BUTTONS = [
     {"name": "lt", "position": (0.841, 0.340)},
 ]
 
-"""configuring varibles because of any changes from config file"""
-
 
 def create_buttons(window):
     for button_config in BUTTONS:
         button = QPushButton(window)
         update_stylesheet(button)
-        buttons.append(button)
+        buttons[button_config["name"]] = button
 
 
 def update_stylesheet(button):
     radius = int(button.width() / 2)
     border_width = int(radius / 5)
-    stylesheet = """
-            QPushButton {
-                background-color: """ + config.button_background + """;
-                border: """ + str(border_width) + """px solid """ + config.button_outline + """;
-                border-radius:""" + str(radius) + """px;
-                color: """ + config.button_text + """;
-            }
-            QPushButton:pressed {
-                background-color: """ + config.button_glow + """;
-                color: """ + config.button_glow_text + """;
-            }
-        """
+    stylesheet = f"""
+        QPushButton {{
+            background-color: {config.button_background};
+            border: {border_width}px solid {config.button_outline};
+            border-radius: {radius}px;
+            color: {config.button_text};
+        }}
+        QPushButton:pressed {{
+            background-color: {config.button_glow};
+            color: {config.button_glow_text};
+        }}
+    """
     button.setStyleSheet(stylesheet)
 
 
 def update_positions():
-    for button, button_config in zip(buttons, BUTTONS):
+    for button_key, button_config in zip(buttons, BUTTONS):
         position = button_config["position"]
+        button = buttons[button_key]
         name = button_config["name"]
         x = int(current_width * position[0])
         y = int(current_height * position[1])
@@ -83,16 +92,84 @@ def on_resize(event, widget):
     update_positions()
 
 
+def handle_button_press(name, pressed):
+    if name in buttons:
+        button = buttons[name]
+        button.setDown(pressed)
+
+
+# Run a constant threaded loop that checks the controller
+# for button presses.
+def controller_loop():
+    os.environ["SDL_VIDEODRIVER"] = "dummy"
+    pygame.init()
+    pygame.joystick.init()
+
+    if pygame.joystick.get_count() == 0:
+        # No controller detected
+        return
+
+    joystick = pygame.joystick.Joystick(0)
+    joystick.init()
+
+    prev_states = {
+        "lt": False,
+        "rt": False
+    }
+
+    button_map = config.controller_config["button_map"]
+    axis_map = config.controller_config["axis_map"]
+    threshold = config.controller_config["trigger_threshold"]
+
+    running = True
+    while running:
+        lt_state = joystick.get_axis(axis_map["lt"]) > threshold
+        rt_state = joystick.get_axis(axis_map["rt"]) > threshold
+
+        if lt_state != prev_states["lt"]:
+            signals.button_pressed.emit("lt", lt_state)
+            prev_states["lt"] = lt_state
+
+        if rt_state != prev_states["rt"]:
+            signals.button_pressed.emit("rt", rt_state)
+            prev_states["rt"] = rt_state
+
+        for event in pygame.event.get():
+            if event.type == pygame.JOYBUTTONDOWN:
+                button_name = list(button_map.keys())[
+                    list(button_map.values()).index(event.button)]
+                handle_button_press(button_name, True)
+            elif event.type == pygame.JOYBUTTONUP:
+                button_name = list(button_map.keys())[
+                    list(button_map.values()).index(event.button)]
+                handle_button_press(button_name, False)
+            elif event.type == pygame.JOYHATMOTION:
+                x, y = event.value
+                signals.button_pressed.emit("Left", x == -1)
+                signals.button_pressed.emit("Right", x == 1)
+                signals.button_pressed.emit("Up", y == 1)
+                signals.button_pressed.emit("Down", y == -1)
+        pygame.event.pump()
+        pygame.time.wait(10)
+
+
 def main():
     app = QApplication([])
     win = QWidget()
     win.resize(current_width, current_height)
+    # Transparent background
+    win.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
 
     create_buttons(win)
     update_positions()
 
-    win.resizeEvent = lambda event: on_resize(event, win)
+    signals.button_pressed.connect(handle_button_press)
 
+    # Start Controller Thread
+    controller_thread = threading.Thread(target=controller_loop, daemon=True)
+    controller_thread.start()
+
+    win.resizeEvent = lambda event: on_resize(event, win)
     win.show()
     app.exec()
 
