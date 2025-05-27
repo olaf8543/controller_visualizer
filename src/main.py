@@ -4,9 +4,20 @@ import pygame
 import threading
 import os
 import config
+import sys
+
+if getattr(sys, 'frozen', False):
+    # Running as bundled executable
+    BASE_DIR = sys._MEIPASS
+else:
+    # Running as normal Python script
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Use for loading assets/configs:
+config_path = os.path.join(BASE_DIR, 'src/config.py')
 
 
-# Class that sends that allows the signla to send the button that was pressed
+# Class that sends that allows the signal to send the button that was pressed
 class ControllerSignals(QObject):
     button_pressed = pyqtSignal(str, bool)
 
