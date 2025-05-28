@@ -4,17 +4,6 @@ import pygame
 import threading
 import os
 import config
-import sys
-
-if getattr(sys, 'frozen', False):
-    # Running as bundled executable
-    BASE_DIR = sys._MEIPASS
-else:
-    # Running as normal Python script
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-# Use for loading assets/configs:
-config_path = os.path.join(BASE_DIR, 'src/config.py')
 
 
 # Class that sends that allows the signal to send the button that was pressed
@@ -169,7 +158,10 @@ def main():
     win = QWidget()
     win.resize(current_width, current_height)
     # Transparent background
-    win.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+    if (config.transparentBackground):
+        win.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+    else:
+        win.setStyleSheet(f"background-color: {config.app_background};")
 
     create_buttons(win)
     update_positions()

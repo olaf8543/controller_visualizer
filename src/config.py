@@ -1,4 +1,8 @@
 biggerUpBtn = True
+# Doesn't work on windows
+transparentBackground = False
+# Background for the app, Look at README.md for more info
+app_background = "rgba(255, 0, 255, 1)"
 
 # Colors for the buttons. supports hex, rgba, or verbal color names
 # eg. button_background = "green"
@@ -20,8 +24,14 @@ controller_config = {
         "y": 3,
         "lb": 4,
         "rb": 5,
-        "lt": 6,
-        "rt": 7,
+        # These are unneccessary on my build, but are included for reference,
+        # if you would need to change anything
+        # "lt": 6,
+        # "rt": 7,
+        # "Up": 8,
+        # "Down": 9,
+        # "Left": 10,
+        # "Right": 11,
     },
     "axis_map": {
         "lt": 2,
