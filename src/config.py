@@ -16,14 +16,11 @@ button_glow_text = "rgba(0, 0, 0, 1)"
 
 
 # Button mappings in case the buttons are not in the correct order
+# Also this is kind of buggy in windows and i cant figure out why,
+# But you might need to put your controller into ps5 mode and configure
+# this to get it to work properly
 controller_config = {
     "button_map": {
-        # "a": 0,
-        # "b": 1,
-        # "x": 2,
-        # "y": 3,
-        # "lb": 4,
-        # "rb": 5,
         0: "a",
         1: "b",
         2: "x",
@@ -42,8 +39,6 @@ controller_config = {
     "axis_map": {
         "lt": 2,
         "rt": 5,
-        # 2: "lt",
-        # 5: "rt",
     },
     "trigger_threshold": 0.5
 }

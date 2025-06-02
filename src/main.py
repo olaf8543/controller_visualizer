@@ -143,9 +143,6 @@ def controller_loop():
                 if button_name:
                     pressed = (event.type == pygame.JOYBUTTONDOWN)
                     handle_button_press(button_name, pressed)
-                else:
-                    if config.debug_mode:
-                        print(f"Ignored unhandled button: {event.button}")
 
             elif event.type == pygame.JOYHATMOTION:
                 x, y = event.value
