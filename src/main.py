@@ -135,14 +135,16 @@ def controller_loop():
             prev_states["rt"] = rt_state
 
         for event in pygame.event.get():
-            if event.type == pygame.JOYBUTTONDOWN:
-                button_name = list(button_map.keys())[
-                    list(button_map.values()).index(event.button)]
-                handle_button_press(button_name, True)
-            elif event.type == pygame.JOYBUTTONUP:
-                button_name = list(button_map.keys())[
-                    list(button_map.values()).index(event.button)]
-                handle_button_press(button_name, False)
+            if event.type in (pygame.JOYBUTTONDOWN, pygame.JOYBUTTONUP):
+                button_name = button_map.get(event.button, None)
+
+                if button_name:
+                    pressed = (event.type == pygame.JOYBUTTONDOWN)
+                    handle_button_press(button_name, pressed)
+                else:
+                    if config.debug_mode:
+                        print(f"Ignored unhandled button: {event.button}")
+
             elif event.type == pygame.JOYHATMOTION:
                 x, y = event.value
                 signals.button_pressed.emit("Left", x == -1)

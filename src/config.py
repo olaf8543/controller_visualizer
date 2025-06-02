@@ -18,12 +18,18 @@ button_glow_text = "rgba(0, 0, 0, 1)"
 # Button mappings in case the buttons are not in the correct order
 controller_config = {
     "button_map": {
-        "a": 0,
-        "b": 1,
-        "x": 2,
-        "y": 3,
-        "lb": 4,
-        "rb": 5,
+        # "a": 0,
+        # "b": 1,
+        # "x": 2,
+        # "y": 3,
+        # "lb": 4,
+        # "rb": 5,
+        0: "a",
+        1: "b",
+        2: "x",
+        3: "y",
+        4: "lb",
+        5: "rb",
         # These are unneccessary on my build, but are included for reference,
         # if you would need to change anything
         # "lt": 6,
@@ -34,8 +40,10 @@ controller_config = {
         # "Right": 11,
     },
     "axis_map": {
-        "lt": 2,
-        "rt": 5,
+        # "lt": 2,
+        # "rt": 5,
+        2: "lt",
+        5: "rt",
     },
     "trigger_threshold": 0.5
 }
