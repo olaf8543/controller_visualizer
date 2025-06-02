@@ -103,6 +103,8 @@ def handle_button_press(name, pressed):
 def controller_loop():
     os.environ["SDL_VIDEODRIVER"] = "dummy"
     pygame.init()
+    if os.name == 'nt':
+        pygame.display.init()
     pygame.joystick.init()
 
     if pygame.joystick.get_count() == 0:
