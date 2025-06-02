@@ -40,10 +40,10 @@ controller_config = {
         # "Right": 11,
     },
     "axis_map": {
-        # "lt": 2,
-        # "rt": 5,
-        2: "lt",
-        5: "rt",
+        "lt": 2,
+        "rt": 5,
+        # 2: "lt",
+        # 5: "rt",
     },
     "trigger_threshold": 0.5
 }
