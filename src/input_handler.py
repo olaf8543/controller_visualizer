@@ -3,8 +3,6 @@ import threading
 import os
 import config
 
-# Input handling functions
-
 
 def start_controller_thread(button_pressed_callback):
     thread = threading.Thread(
@@ -15,6 +13,8 @@ def start_controller_thread(button_pressed_callback):
     thread.start()
 
 
+# Run a constant threaded loop that checks the controller
+# for button presses.
 def controller_loop(button_pressed_callback):
     os.environ["SDL_VIDEODRIVER"] = "dummy"
     pygame.init()
@@ -23,6 +23,7 @@ def controller_loop(button_pressed_callback):
     pygame.joystick.init()
 
     if pygame.joystick.get_count() == 0:
+        # No controller detected
         return
 
     joystick = pygame.joystick.Joystick(0)
